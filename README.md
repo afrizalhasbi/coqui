@@ -2,7 +2,7 @@
 git clone https://github.com/afrizalhasbi/coqui
 cd coqui
 pip install -e .
-pip install datasets boto3
+pip install datasets boto3 pydub
 FLASH_ATTENTION_SKIP_CUDA_BUILD=TRUE pip install flash-attn --no-build-isolation
 ```
 
