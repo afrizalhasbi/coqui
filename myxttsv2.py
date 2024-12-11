@@ -176,7 +176,8 @@ def main():
             restore_path=None,  # xtts checkpoint is restored via xtts_checkpoint key so no need of restore it using Trainer restore_path parameter
             skip_train_epoch=False,
             start_with_eval=False,
-            grad_accum_steps=grad_accum_steps,
+            # Does not support gradient accummulation for multi optimizer setups
+            # grad_accum_steps=grad_accum_steps,
         ),
         config,
         output_path=OUT_PATH,
