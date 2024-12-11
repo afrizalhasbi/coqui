@@ -1,3 +1,7 @@
+```
+git clone https://github.com/afrizalhasbi/coqui
+pip install -e .[dev]
+```
 
 ## 🐸Coqui TTS News
 - 📣 Fork of the [original, unmaintained repository](https://github.com/coqui-ai/TTS). New PyPI package: [coqui-tts](https://pypi.org/project/coqui-tts)
