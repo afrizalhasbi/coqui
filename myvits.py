@@ -61,7 +61,7 @@ audio_config = VitsAudioConfig(
 
 config = VitsConfig(
     audio=audio_config,
-    run_name="vits",
+    run_name=f"vits_{random.randint(10_000, 99_999)}",
     batch_size=batch_size,
     eval_batch_size=batch_size if eval else 0,
     batch_group_size=1,
