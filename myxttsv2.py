@@ -50,8 +50,8 @@ PROJECT_NAME = "XTTS_trainer"
 DASHBOARD_LOGGER = "tensorboard"
 LOGGER_URI = None
 
-# Set here the path that the checkpoints will be saved. Default: ./run/training/
-OUT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "run", "training")
+# Set here the path that the checkpoints will be saved.
+OUT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "run")
 
 # Training Parameters
 OPTIMIZER_WD_ONLY_ON_WEIGHTS = True  # for multi-gpu training please make it False
