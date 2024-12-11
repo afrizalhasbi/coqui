@@ -1,5 +1,6 @@
 ```
 git clone https://github.com/afrizalhasbi/coqui
+cd coqui
 pip install -e .[dev]
 FLASH_ATTENTION_SKIP_CUDA_BUILD=TRUE pip install flash-attn --no-build-isolation
 ```
