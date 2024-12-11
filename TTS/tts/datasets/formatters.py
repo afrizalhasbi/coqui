@@ -17,8 +17,7 @@ logger = logging.getLogger(__name__)
 ########################
 # DATASETS
 ########################
-
-def huggingface(root_path, meta_file, **kwargs):  # Match the expected signature
+def huggingface(root_path, meta_file, **kwargs):
     """
     root_path: where to save/load the audio files
     meta_file: in this case, could be your dataset name
@@ -43,11 +42,14 @@ def huggingface(root_path, meta_file, **kwargs):  # Match the expected signature
         
         # Save audio file if it doesn't exist
         if not os.path.exists(mp3_path):
+            # Convert float32 array to int16
+            audio_int16 = (audio_array * 32767).astype(np.int16)
+            
             # Convert numpy array to AudioSegment
             audio_segment = AudioSegment(
-                audio_array.tobytes(), 
+                audio_int16.tobytes(),
                 frame_rate=sampling_rate,
-                sample_width=audio_array.dtype.itemsize, 
+                sample_width=2,  # 2 bytes for int16
                 channels=1
             )
             
@@ -56,7 +58,7 @@ def huggingface(root_path, meta_file, **kwargs):  # Match the expected signature
 
         items.append({
             "text": text, 
-            "audio_file": mp3_path,  # Use full path
+            "audio_file": mp3_path,
             "speaker_name": speaker_name, 
             "root_path": root_path
         })
