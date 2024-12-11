@@ -103,12 +103,11 @@ print(f"Eval samples:{len(eval_samples)}")
 
 # init the trainer and 🚀
 trainer = Trainer(
-    TrainerArgs(),
+    TrainerArgs(grad_accum_steps=grad_accum_steps),
     config,
     "run/vits",
     model=model,
     train_samples=train_samples,
     eval_samples=eval_samples,
-    grad_accum_steps=grad_accum_steps,
 )
 trainer.fit()
