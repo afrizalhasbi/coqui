@@ -6,6 +6,7 @@ from TTS.tts.models.vits import Vits, VitsAudioConfig
 from TTS.tts.utils.text.tokenizer import TTSTokenizer
 from TTS.utils.audio import AudioProcessor
 
+from datetime import datetime
 import argparse
 import random
 import os
@@ -26,6 +27,16 @@ batch_size = args.batch_size
 grad_accum_steps = args.grad_accum_steps
 num_epochs = args.num_epochs
 eval = args.eval
+
+
+def rename_dirs(root_dir):
+    month = datetime.now().strftime('%B')
+    for d in os.listdir(root_dir):
+        path = os.path.join(root_dir, d)
+        if os.path.isdir(path) and month in d:
+            new_name = d.split(f'-{month}')[0]
+            os.rename(path, os.path.join(root_dir, new_name))
+    print("Removing the -Month name from the dir because its annoying as fuck okay, fuck off")
 
 # ------------------------------------------------------------------------------------------------------ #
 # ------------------------------------------------------------------------------------------------------ #
@@ -113,3 +124,4 @@ trainer = Trainer(
     eval_samples=eval_samples,
 )
 trainer.fit()
+rename_dirs('run/vits')
