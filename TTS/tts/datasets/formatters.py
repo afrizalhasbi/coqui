@@ -15,6 +15,41 @@ logger = logging.getLogger(__name__)
 # DATASETS
 ########################
 
+def huggingface(root_path, meta_file, **kwargs):  # Match the expected signature
+    """
+    root_path: where to save/load the audio files
+    meta_file: in this case, could be your dataset name
+    """
+    ds_name = meta_file  # Using meta_file param as dataset name
+    dataset = load_dataset(ds_name)
+    items = []
+    
+    # Create output directory if it doesn't exist
+    wavs_dir = os.path.join(root_path, "wavs")
+    os.makedirs(wavs_dir, exist_ok=True)
+
+    for idx, example in tqdm(enumerate(dataset['train'])):
+        audio_array = example['audio']['array']
+        sampling_rate = example['audio']['sampling_rate']
+        speaker_name = example['speaker_id']
+        text = example['text']
+        
+        # Save wav file in the wavs subdirectory
+        wav_filename = f"audio_{idx}.wav"
+        wav_path = os.path.join(wavs_dir, wav_filename)
+        
+        # Save audio file if it doesn't exist
+        if not os.path.exists(wav_path):
+            sf.write(wav_path, audio_array, sampling_rate)
+
+        items.append({
+            "text": text, 
+            "audio_file": wav_path,  # Use full path
+            "speaker_name": speaker_name, 
+            "root_path": root_path
+        })
+    
+    return items
 
 def cml_tts(root_path, meta_file, ignored_speakers=None):
     """Normalizes the CML-TTS meta data file to TTS format
