@@ -7,6 +7,16 @@ from TTS.tts.datasets import load_tts_samples
 from TTS.tts.layers.xtts.trainer.gpt_trainer import GPTArgs, GPTTrainer, GPTTrainerConfig
 from TTS.tts.models.xtts import XttsAudioConfig
 from TTS.utils.manage import ModelManager
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--ds_name', required=True)
+parser.add_argument('--token', required=True)
+args = parser.parse_args()
+ds_name = args.ds_name 
+token = args.token
+
+os.environ['HF_TOKEN'] = token
 
 # Logging parameters
 RUN_NAME = "GPT_XTTS_v2.0_LJSpeech_FT"
@@ -26,11 +36,11 @@ GRAD_ACUMM_STEPS = 84  # set here the grad accumulation steps
 
 # Define here the dataset that you want to use for the fine-tuning on.
 config_dataset = BaseDatasetConfig(
-    formatter="ljspeech",
-    dataset_name="ljspeech",
-    path="/raid/datasets/LJSpeech-1.1_24khz/",
-    meta_file_train="/raid/datasets/LJSpeech-1.1_24khz/metadata.csv",
-    language="en",
+    formatter="huggingface",
+    dataset_name=ds_name,
+    path=ds_name.split('/')[1],
+    meta_file_trainds_name,
+    language="id",
 )
 
 # Add here the configs of the datasets
@@ -84,7 +94,7 @@ def main():
         max_conditioning_length=132300,  # 6 secs
         min_conditioning_length=66150,  # 3 secs
         debug_loading_failures=False,
-        max_wav_length=255995,  # ~11.6 seconds
+        max_wav_length=255995*5,  # ~11.6 seconds
         max_text_length=200,
         mel_norm_file=MEL_NORM_FILE,
         dvae_checkpoint=DVAE_CHECKPOINT,
@@ -116,13 +126,13 @@ def main():
         num_loader_workers=8,
         eval_split_max_size=256,
         print_step=50,
-        plot_step=100,
+        plot_step=1,
         log_model_step=1000,
         save_step=10000,
         save_n_checkpoints=1,
-        save_checkpoints=True,
+        save_checkpoints=False,
         # target_loss="loss",
-        print_eval=False,
+        print_eval=True,
         # Optimizer values like tortoise, pytorch implementation with modifications to not apply WD to non-weight parameters.
         optimizer="AdamW",
         optimizer_wd_only_on_weights=OPTIMIZER_WD_ONLY_ON_WEIGHTS,
