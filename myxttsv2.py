@@ -48,8 +48,7 @@ config_dataset = BaseDatasetConfig(
 # Logging parameters
 RUN_NAME = f"xtts_{random.randint(10_000, 99_999)}"
 PROJECT_NAME = "XTTS_trainer"
-if args.logger is not None:
-    DASHBOARD_LOGGER = args.logger
+DASHBOARD_LOGGER = args.logger if if args.logger is not None else "tensorboard"
 LOGGER_URI = None
 
 # Set here the path that the checkpoints will be saved.
