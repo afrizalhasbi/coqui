@@ -5,6 +5,7 @@ from TTS.tts.layers.xtts.trainer.gpt_trainer import GPTArgs, GPTTrainer, GPTTrai
 from TTS.tts.models.xtts import XttsAudioConfig
 from TTS.utils.manage import ModelManager
 
+from datetime import datetime
 import argparse
 import random
 import os
@@ -32,6 +33,14 @@ if args.token is not None:
 if 'CUDA_VISIBLE_DEVICES' not in os.environ:
     os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
+def rename_dirs(root_dir):
+    month = datetime.now().strftime('%B')
+    for d in os.listdir(root_dir):
+        path = os.path.join(root_dir, d)
+        if os.path.isdir(path) and month in d:
+            new_name = d.split(f'-{month}')[0]
+            os.rename(path, os.path.join(root_dir, new_name))
+    print("Removing the -Month name from the dir because its annoying as fuck okay, fuck off")
 
 # ------------------------------------------------------------------------------------------------------ #
 # ------------------------------------------------------------------------------------------------------ #
@@ -41,7 +50,7 @@ if 'CUDA_VISIBLE_DEVICES' not in os.environ:
 config_dataset = BaseDatasetConfig(
     formatter="huggingface",
     dataset_name=ds_name,
-    path=ds_name.split('/')[1] + "_wavs",
+    path=ds_name.split('/')[1] + "_mp3",
     meta_file_train=ds_name,
     language="en",
 )
@@ -53,7 +62,7 @@ DASHBOARD_LOGGER = args.logger if args.logger is not None else "tensorboard"
 LOGGER_URI = None
 
 # Set here the path that the checkpoints will be saved.
-OUT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "run")
+OUT_PATH = "run/xttsv2"
 
 # Training Parameters
 OPTIMIZER_WD_ONLY_ON_WEIGHTS = True  # for multi-gpu training please make it False
@@ -186,6 +195,7 @@ def main():
         eval_samples=eval_samples,
     )
     trainer.fit()
+    rename_dirs(OUT_PATH)
 
 
 if __name__ == "__main__":
