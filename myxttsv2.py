@@ -34,13 +34,15 @@ if args.token is not None:
 if 'CUDA_VISIBLE_DEVICES' not in os.environ:
     os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
-def rename_dirs(root_dir):
+run_id = random.randint(10_000, 99_999)
+
+def rename_dirs(root_dir, run_id):
     month = datetime.now().strftime('%B')
     for d in os.listdir(root_dir):
         path = os.path.join(root_dir, d)
         if os.path.isdir(path) and month in d:
             new_name = d.split(f'-{month}')[0]
-            os.rename(path, os.path.join(root_dir, new_name))
+            os.rename(path, os.path.join(root_dir, f"{new_name}_{run_id}"))
     print("Removing the -Month name from the dir because its annoying as fuck okay, fuck off")
 
 # ------------------------------------------------------------------------------------------------------ #
@@ -57,7 +59,7 @@ config_dataset = BaseDatasetConfig(
 )
 
 # Logging parameters
-RUN_NAME = f"xtts_{random.randint(10_000, 99_999)}"
+RUN_NAME = f"xtts_{run_id}"
 PROJECT_NAME = "XTTS_trainer"
 DASHBOARD_LOGGER = args.logger if args.logger is not None else "tensorboard"
 LOGGER_URI = None
@@ -196,7 +198,7 @@ def main():
         eval_samples=eval_samples,
     )
     trainer.fit()
-    rename_dirs(OUT_PATH)
+    rename_dirs(OUT_PATH, run_id)
 
 
 if __name__ == "__main__":
