@@ -30,7 +30,7 @@ def huggingface(root_path, meta_file, **kwargs):  # Match the expected signature
     # Create output directory if it doesn't exist
     os.makedirs(root_path, exist_ok=True)
 
-    for idx, example in tqdm(enumerate(dataset['train']), total=len(dataset['train']):
+    for idx, example in tqdm(enumerate(dataset['train']), total=len(dataset['train'])):
         audio_array = example['audio']['array']
         sampling_rate = example['audio']['sampling_rate']
         speaker_name = example['text_description']
