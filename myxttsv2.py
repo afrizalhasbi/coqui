@@ -131,7 +131,7 @@ def main():
         batch_size=batch_size,
         batch_group_size=0,
         eval_batch_size=batch_size,
-        eval_split_max_size=batch_size,
+        eval_split_max_size=256,
         num_loader_workers=1,        
         print_step=50,
         plot_step=1,
