@@ -38,7 +38,7 @@ def huggingface(root_path, meta_file, **kwargs):
         
         # Save as mp3 file
         mp3_filename = f"audio_{idx}.mp3"
-        mp3_path = os.path.join(root_path + "_mp3", mp3_filename)
+        mp3_path = os.path.join(root_path, mp3_filename)
         
         # Save audio file if it doesn't exist
         if not os.path.exists(mp3_path):
