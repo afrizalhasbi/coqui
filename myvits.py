@@ -97,7 +97,7 @@ model = Vits(config, ap, tokenizer, speaker_manager=None)
 
 print(dataset_config)
 print(f"Train samples:{len(train_samples)}")
-print(f"Eval samples:{len(eval_samples)}")
+print(f"Eval samples:{len(eval_samples) if eval else 0}")
 
 # ------------------------------------------------------------------------------------------------------ #
 # ------------------------------------------------------------------------------------------------------ #
