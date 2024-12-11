@@ -17,13 +17,15 @@ parser.add_argument('--num_epochs', required=False, default=1)
 parser.add_argument('--batch_size', required=False, default=16)
 parser.add_argument('--grad_accum_steps', required=False, default=1)
 parser.add_argument('--logger', required=False, default=None)
+parser.add_argument('--eval', required=False, default=False)
+
 args = parser.parse_args()
 
 ds_name = args.ds_name 
 batch_size = args.batch_size
 grad_accum_steps = args.grad_accum_steps
 num_epochs = args.num_epochs
-
+eval = args.eval
 
 # ------------------------------------------------------------------------------------------------------ #
 # ------------------------------------------------------------------------------------------------------ #
@@ -50,18 +52,18 @@ config = VitsConfig(
     audio=audio_config,
     run_name="vits",
     batch_size=batch_size,
-    eval_batch_size=batch_size,
-    batch_group_size=0,
+    eval_batch_size=batch_size if eval else 0,
+    batch_group_size=1,
     num_loader_workers=1,
     num_eval_loader_workers=1,
-    run_eval=True,
+    run_eval=eval,
     test_delay_epochs=-1,
     epochs=num_epochs,
     text_cleaner="basic_cleaners",
     use_phonemes=False,
     compute_input_seq_cache=True,
     print_step=25,
-    print_eval=True,
+    print_eval=eval,
     mixed_precision=False,
     output_path="run",
     datasets=[dataset_config],
@@ -85,7 +87,7 @@ tokenizer, config = TTSTokenizer.init_from_config(config)
 # Check `TTS.tts.datasets.load_tts_samples` for more details.
 train_samples, eval_samples = load_tts_samples(
     dataset_config,
-    eval_split=True,
+    eval_split=eval,
     eval_split_max_size=config.eval_split_max_size,
     eval_split_size=config.eval_split_size,
 )
