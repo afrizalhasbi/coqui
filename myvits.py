@@ -63,7 +63,7 @@ config = VitsConfig(
     print_step=25,
     print_eval=True,
     mixed_precision=True,
-    output_path=output_path,
+    output_path="run",
     datasets=[dataset_config],
     cudnn_benchmark=False,
 )
