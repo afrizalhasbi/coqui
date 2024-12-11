@@ -39,9 +39,9 @@ OUT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "run", "trai
 
 # Training Parameters
 OPTIMIZER_WD_ONLY_ON_WEIGHTS = True  # for multi-gpu training please make it False
-START_WITH_EVAL = True  # if True it will star with evaluation
-BATCH_SIZE = 3  # set here the batch size
-GRAD_ACUMM_STEPS = 84  # set here the grad accumulation steps
+START_WITH_EVAL = False  # if True it will star with evaluation
+BATCH_SIZE = 32  # set here the batch size
+GRAD_ACUMM_STEPS = 1  # set here the grad accumulation steps
 # Note: we recommend that BATCH_SIZE * GRAD_ACUMM_STEPS need to be at least 252 for more efficient training. You can increase/decrease BATCH_SIZE but then set GRAD_ACUMM_STEPS accordingly.
 
 
