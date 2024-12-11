@@ -24,6 +24,7 @@ def huggingface(root_path, meta_file, **kwargs):  # Match the expected signature
     """
     ds_name = meta_file  # Using meta_file param as dataset name
     dataset = load_dataset(ds_name)
+    print(dataset)
     items = []
     
     # Create output directory if it doesn't exist
