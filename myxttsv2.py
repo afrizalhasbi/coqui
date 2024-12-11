@@ -19,7 +19,7 @@ args = parser.parse_args()
 
 ds_name = args.ds_name 
 batch_size = args.batch_size
-grad_accum_steps = args.grad_accum
+grad_accum_steps = args.grad_accum_steps
 num_epochs = args.num_epochs
 # Note: we recommend that batch_size * grad_accum_steps need to be at least 252 for more efficient training.
 # You can increase/decrease batch_size but then set grad_accum_steps accordingly.
