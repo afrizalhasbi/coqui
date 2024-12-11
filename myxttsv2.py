@@ -1,13 +1,13 @@
 import os
 
 from trainer import Trainer, TrainerArgs
-
 from TTS.config.shared_configs import BaseDatasetConfig
 from TTS.tts.datasets import load_tts_samples
 from TTS.tts.layers.xtts.trainer.gpt_trainer import GPTArgs, GPTTrainer, GPTTrainerConfig
 from TTS.tts.models.xtts import XttsAudioConfig
 from TTS.utils.manage import ModelManager
 import argparse
+import random
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--ds_name', required=True)
@@ -45,7 +45,7 @@ config_dataset = BaseDatasetConfig(
 )
 
 # Logging parameters
-RUN_NAME = "GPT_XTTS_v2.0_LJSpeech_FT"
+RUN_NAME = f"xtts_{random.randint(10_000, 99_999)"
 PROJECT_NAME = "XTTS_trainer"
 DASHBOARD_LOGGER = "tensorboard"
 LOGGER_URI = None
