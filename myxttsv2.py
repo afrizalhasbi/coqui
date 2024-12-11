@@ -12,8 +12,15 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--ds_name', required=True)
 parser.add_argument('--token', required=False, default=None)
+parser.add_argument('--batch', required=False, default=16)
+parser.add_argument('--grad_accum', required=False, default=16)
 args = parser.parse_args()
+
 ds_name = args.ds_name 
+BATCH_SIZE = args.batch
+GRAD_ACUMM_STEPS = args.grad_accum
+# Note: we recommend that BATCH_SIZE * GRAD_ACUMM_STEPS need to be at least 252 for more efficient training. You can increase/decrease BATCH_SIZE but then set GRAD_ACUMM_STEPS accordingly.
+
 if args.token is not None:
     token = args.token
     os.environ['HF_TOKEN'] = token
@@ -40,11 +47,6 @@ OUT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "run", "trai
 # Training Parameters
 OPTIMIZER_WD_ONLY_ON_WEIGHTS = True  # for multi-gpu training please make it False
 START_WITH_EVAL = False  # if True it will star with evaluation
-BATCH_SIZE = 8  # set here the batch size
-GRAD_ACUMM_STEPS = 1  # set here the grad accumulation steps
-# Note: we recommend that BATCH_SIZE * GRAD_ACUMM_STEPS need to be at least 252 for more efficient training. You can increase/decrease BATCH_SIZE but then set GRAD_ACUMM_STEPS accordingly.
-
-
 
 # Add here the configs of the datasets
 DATASETS_CONFIG_LIST = [config_dataset]
