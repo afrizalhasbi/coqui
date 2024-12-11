@@ -14,7 +14,7 @@ parser.add_argument('--ds_name', required=True)
 parser.add_argument('--token', required=False, default=None)
 args = parser.parse_args()
 ds_name = args.ds_name 
-if token is not None:
+if args.token is not None:
     token = args.token
     os.environ['HF_TOKEN'] = token
 
