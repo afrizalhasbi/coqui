@@ -168,6 +168,8 @@ def main():
         eval_split_max_size=config.eval_split_max_size,
         eval_split_size=config.eval_split_size,
     )
+    print(train_samples)
+    print(eval_samples)
 
     # init the trainer and 🚀
     trainer = Trainer(
