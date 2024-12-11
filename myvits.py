@@ -38,7 +38,7 @@ if 'CUDA_VISIBLE_DEVICES' not in os.environ:
 dataset_config = BaseDatasetConfig(
     formatter="huggingface",
     dataset_name=ds_name,
-    path=ds_name.split('/')[1] + "_wavs",
+    path=ds_name.split('/')[1] + "_mp3",
     meta_file_train=ds_name,
     language="en",
 )
