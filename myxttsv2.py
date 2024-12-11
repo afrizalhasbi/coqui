@@ -17,6 +17,7 @@ parser.add_argument('--num_epochs', required=False, default=1)
 parser.add_argument('--batch_size', required=False, default=16)
 parser.add_argument('--grad_accum_steps', required=False, default=16)
 parser.add_argument('--logger', required=False, default=None)
+parser.add_argument('--eval', required=False, default=True)
 args = parser.parse_args()
 
 ds_name = args.ds_name 
