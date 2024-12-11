@@ -1,6 +1,7 @@
 ```
 git clone https://github.com/afrizalhasbi/coqui
 pip install -e .[dev]
+FLASH_ATTENTION_SKIP_CUDA_BUILD=TRUE pip install flash-attn --no-build-isolation
 ```
 
 ## 🐸Coqui TTS News
