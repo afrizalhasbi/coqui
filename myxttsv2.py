@@ -11,13 +11,21 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--ds_name', required=True)
-parser.add_argument('--token', required=True)
+parser.add_argument('--token', required=False, default=None)
 args = parser.parse_args()
 ds_name = args.ds_name 
-token = args.token
+if token is not None:
+    token = args.token
+    os.environ['HF_TOKEN'] = token
 
-os.environ['HF_TOKEN'] = token
-
+# Define here the dataset that you want to use for the fine-tuning on.
+config_dataset = BaseDatasetConfig(
+    formatter="huggingface",
+    dataset_name=ds_name,
+    path=ds_name.split('/')[1] + "_wavs",
+    meta_file_trainds_name,
+    language="id",
+)
 # Logging parameters
 RUN_NAME = "GPT_XTTS_v2.0_LJSpeech_FT"
 PROJECT_NAME = "XTTS_trainer"
@@ -34,14 +42,7 @@ BATCH_SIZE = 3  # set here the batch size
 GRAD_ACUMM_STEPS = 84  # set here the grad accumulation steps
 # Note: we recommend that BATCH_SIZE * GRAD_ACUMM_STEPS need to be at least 252 for more efficient training. You can increase/decrease BATCH_SIZE but then set GRAD_ACUMM_STEPS accordingly.
 
-# Define here the dataset that you want to use for the fine-tuning on.
-config_dataset = BaseDatasetConfig(
-    formatter="huggingface",
-    dataset_name=ds_name,
-    path=ds_name.split('/')[1],
-    meta_file_trainds_name,
-    language="id",
-)
+
 
 # Add here the configs of the datasets
 DATASETS_CONFIG_LIST = [config_dataset]
