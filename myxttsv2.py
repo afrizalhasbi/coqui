@@ -23,7 +23,7 @@ config_dataset = BaseDatasetConfig(
     formatter="huggingface",
     dataset_name=ds_name,
     path=ds_name.split('/')[1] + "_wavs",
-    meta_file_trainds_name,
+    meta_file_train=ds_name,
     language="id",
 )
 # Logging parameters
