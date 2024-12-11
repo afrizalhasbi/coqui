@@ -28,7 +28,7 @@ def huggingface(root_path, meta_file, **kwargs):  # Match the expected signature
     items = []
     
     # Create output directory if it doesn't exist
-    os.makedirs(wavs_dir, exist_ok=True)
+    os.makedirs(root_path, exist_ok=True)
 
     for idx, example in tqdm(enumerate(dataset['train'])):
         audio_array = example['audio']['array']
