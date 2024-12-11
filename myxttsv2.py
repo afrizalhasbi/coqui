@@ -45,7 +45,7 @@ config_dataset = BaseDatasetConfig(
 )
 
 # Logging parameters
-RUN_NAME = f"xtts_{random.randint(10_000, 99_999)"
+RUN_NAME = f"xtts_{random.randint(10_000, 99_999)}"
 PROJECT_NAME = "XTTS_trainer"
 DASHBOARD_LOGGER = "tensorboard"
 LOGGER_URI = None
@@ -55,7 +55,6 @@ OUT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "run", "trai
 
 # Training Parameters
 OPTIMIZER_WD_ONLY_ON_WEIGHTS = True  # for multi-gpu training please make it False
-START_WITH_EVAL = False  # if True it will star with evaluation
 
 # Add here the configs of the datasets
 DATASETS_CONFIG_LIST = [config_dataset]
@@ -132,8 +131,9 @@ def main():
         batch_size=batch_size,
         batch_group_size=0,
         eval_batch_size=batch_size,
-        num_loader_workers=1,
-        eval_split_max_size=256,
+        eval_split_size=batch_size,
+        eval_split_max_size=batch_size,
+        num_loader_workers=1,        
         print_step=50,
         plot_step=1,
         log_model_step=1,
@@ -173,7 +173,7 @@ def main():
         TrainerArgs(
             restore_path=None,  # xtts checkpoint is restored via xtts_checkpoint key so no need of restore it using Trainer restore_path parameter
             skip_train_epoch=False,
-            start_with_eval=START_WITH_EVAL,
+            start_with_eval=False,
             grad_accum_steps=grad_accum_steps,
         ),
         config,
