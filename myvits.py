@@ -28,14 +28,14 @@ grad_accum_steps = args.grad_accum_steps
 num_epochs = args.num_epochs
 eval = args.eval
 
-
-def rename_dirs(root_dir):
+run_id = random.randint(10_000, 99_999)
+def rename_dirs(root_dir, run_id):
     month = datetime.now().strftime('%B')
     for d in os.listdir(root_dir):
         path = os.path.join(root_dir, d)
         if os.path.isdir(path) and month in d:
             new_name = d.split(f'-{month}')[0]
-            os.rename(path, os.path.join(root_dir, new_name))
+            os.rename(path, os.path.join(root_dir, f"{new_name}_{run_id}"))
     print("Removing the -Month name from the dir because its annoying as fuck okay, fuck off")
 
 # ------------------------------------------------------------------------------------------------------ #
@@ -61,7 +61,7 @@ audio_config = VitsAudioConfig(
 
 config = VitsConfig(
     audio=audio_config,
-    run_name=f"vits_{random.randint(10_000, 99_999)}",
+    run_name=f"vits_{run_id}",
     batch_size=batch_size,
     eval_batch_size=batch_size if eval else 0,
     batch_group_size=1,
@@ -124,4 +124,4 @@ trainer = Trainer(
     eval_samples=eval_samples,
 )
 trainer.fit()
-rename_dirs('run/vits')
+rename_dirs('run/vits', )
