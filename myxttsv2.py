@@ -97,7 +97,7 @@ def main():
         max_conditioning_length=132300,  # 6 secs
         min_conditioning_length=66150,  # 3 secs
         debug_loading_failures=False,
-        max_wav_length=255995*5,  # ~11.6 seconds
+        max_wav_length=255995*5,  # ~11.6 * 5 seconds
         max_text_length=200,
         mel_norm_file=MEL_NORM_FILE,
         dvae_checkpoint=DVAE_CHECKPOINT,
@@ -124,7 +124,7 @@ def main():
         logger_uri=LOGGER_URI,
         audio=audio_config,
         batch_size=BATCH_SIZE,
-        batch_group_size=1,
+        batch_group_size=0,
         eval_batch_size=BATCH_SIZE,
         num_loader_workers=4,
         eval_split_max_size=256,
@@ -133,9 +133,11 @@ def main():
         log_model_step=1,
         save_step=10000,
         save_n_checkpoints=1,
-        save_checkpoints=False,
+        save_checkpoints=True,
         # target_loss="loss",
         print_eval=True,
+        epochs=1,
+        training_seed=111,
         # Optimizer values like tortoise, pytorch implementation with modifications to not apply WD to non-weight parameters.
         optimizer="AdamW",
         optimizer_wd_only_on_weights=OPTIMIZER_WD_ONLY_ON_WEIGHTS,
@@ -143,20 +145,9 @@ def main():
         lr=5e-06,  # learning rate
         lr_scheduler="MultiStepLR",
         # it was adjusted accordly for the new step scheme
-        lr_scheduler_params={"milestones": [50000 * 18, 150000 * 18, 300000 * 18], "gamma": 0.5, "last_epoch": -1},
-        test_sentences=[
-            {
-                "text": "It took me quite a long time to develop a voice, and now that I have it I'm not going to be silent.",
-                "speaker_wav": SPEAKER_REFERENCE,
-                "language": LANGUAGE,
-            },
-            {
-                "text": "This cake is great. It's so delicious and moist.",
-                "speaker_wav": SPEAKER_REFERENCE,
-                "language": LANGUAGE,
-            },
-        ],
+        lr_scheduler_params={"milestones": [50000 * 18, 150000 * 18, 300000 * 18], "gamma": 0.5, "last_epoch": -1
     )
+    print(config)
 
     # init the model from config
     model = GPTTrainer.init_from_config(config)
