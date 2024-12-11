@@ -4,11 +4,12 @@ from datasets import load_dataset
 import os
 import soundfile as sf
 import re
+import numpy as np
 import xml.etree.ElementTree as ET
 from glob import glob
 from pathlib import Path
 from typing import List
-
+from pydub import AudioSegment
 from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
@@ -18,6 +19,51 @@ logger = logging.getLogger(__name__)
 ########################
 
 def huggingface(root_path, meta_file, **kwargs):  # Match the expected signature
+    """
+    root_path: where to save/load the audio files
+    meta_file: in this case, could be your dataset name
+    """
+    ds_name = meta_file  # Using meta_file param as dataset name
+    dataset = load_dataset(ds_name)
+    print(dataset)
+    items = []
+    
+    # Create output directory if it doesn't exist
+    os.makedirs(root_path, exist_ok=True)
+
+    for idx, example in tqdm(enumerate(dataset['train']), total=len(dataset['train'])):
+        audio_array = example['audio']['array']
+        sampling_rate = example['audio']['sampling_rate']
+        speaker_name = example['text_description']
+        text = example['text']
+        
+        # Save as mp3 file
+        mp3_filename = f"audio_{idx}.mp3"
+        mp3_path = os.path.join(root_path, mp3_filename)
+        
+        # Save audio file if it doesn't exist
+        if not os.path.exists(mp3_path):
+            # Convert numpy array to AudioSegment
+            audio_segment = AudioSegment(
+                audio_array.tobytes(), 
+                frame_rate=sampling_rate,
+                sample_width=audio_array.dtype.itemsize, 
+                channels=1
+            )
+            
+            # Export as MP3
+            audio_segment.export(mp3_path, format="mp3")
+
+        items.append({
+            "text": text, 
+            "audio_file": mp3_path,  # Use full path
+            "speaker_name": speaker_name, 
+            "root_path": root_path
+        })
+    
+    return items
+    
+def huggingface_wav(root_path, meta_file, **kwargs):  # Match the expected signature
     """
     root_path: where to save/load the audio files
     meta_file: in this case, could be your dataset name
