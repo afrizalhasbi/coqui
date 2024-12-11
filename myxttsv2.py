@@ -26,7 +26,7 @@ config_dataset = BaseDatasetConfig(
     dataset_name=ds_name,
     path=ds_name.split('/')[1] + "_wavs",
     meta_file_train=ds_name,
-    language="id",
+    language="en",
 )
 # Logging parameters
 RUN_NAME = "GPT_XTTS_v2.0_LJSpeech_FT"
