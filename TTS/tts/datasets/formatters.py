@@ -32,7 +32,7 @@ def huggingface(root_path, meta_file, **kwargs):  # Match the expected signature
     for idx, example in tqdm(enumerate(dataset['train'])):
         audio_array = example['audio']['array']
         sampling_rate = example['audio']['sampling_rate']
-        speaker_name = example['speaker_id']
+        speaker_name = example['text_description']
         text = example['text']
         
         # Save wav file in the wavs subdirectory
