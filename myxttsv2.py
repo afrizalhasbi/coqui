@@ -17,6 +17,8 @@ ds_name = args.ds_name
 if args.token is not None:
     token = args.token
     os.environ['HF_TOKEN'] = token
+if 'CUDA_VISIBLE_DEVICES' not in os.environ:
+    os.environ['CUDA_VISIBLE_DEVICES'] = 0
 
 # Define here the dataset that you want to use for the fine-tuning on.
 config_dataset = BaseDatasetConfig(
