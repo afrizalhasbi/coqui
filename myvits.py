@@ -1,7 +1,4 @@
-import os
-
 from trainer import Trainer, TrainerArgs
-
 from TTS.tts.configs.shared_configs import BaseDatasetConfig
 from TTS.tts.configs.vits_config import VitsConfig
 from TTS.tts.datasets import load_tts_samples
@@ -9,9 +6,41 @@ from TTS.tts.models.vits import Vits, VitsAudioConfig
 from TTS.tts.utils.text.tokenizer import TTSTokenizer
 from TTS.utils.audio import AudioProcessor
 
-output_path = os.path.dirname(os.path.abspath(__file__))
+import argparse
+import random
+import os
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--ds_name', required=True)
+parser.add_argument('--token', required=False, default=None)
+parser.add_argument('--num_epochs', required=False, default=1)
+parser.add_argument('--batch_size', required=False, default=16)
+parser.add_argument('--grad_accum_steps', required=False, default=16)
+parser.add_argument('--logger', required=False, default=None)
+args = parser.parse_args()
+
+ds_name = args.ds_name 
+batch_size = args.batch_size
+grad_accum_steps = args.grad_accum_steps
+num_epochs = args.num_epochs
+
+
+# ------------------------------------------------------------------------------------------------------ #
+# ------------------------------------------------------------------------------------------------------ #
+
+
+if args.token is not None:
+    token = args.token
+    os.environ['HF_TOKEN'] = token
+if 'CUDA_VISIBLE_DEVICES' not in os.environ:
+    os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+
 dataset_config = BaseDatasetConfig(
-    formatter="ljspeech", meta_file_train="metadata.csv", path=os.path.join(output_path, "../LJSpeech-1.1/")
+    formatter="huggingface",
+    dataset_name=ds_name,
+    path=ds_name.split('/')[1] + "_wavs",
+    meta_file_train=ds_name,
+    language="en",
 )
 audio_config = VitsAudioConfig(
     sample_rate=22050, win_length=1024, hop_length=256, num_mels=80, mel_fmin=0, mel_fmax=None
@@ -19,19 +48,17 @@ audio_config = VitsAudioConfig(
 
 config = VitsConfig(
     audio=audio_config,
-    run_name="vits_ljspeech",
-    batch_size=32,
-    eval_batch_size=16,
-    batch_group_size=5,
-    num_loader_workers=8,
-    num_eval_loader_workers=4,
+    run_name="vits",
+    batch_size=batch_size,
+    eval_batch_size=batch_size,
+    batch_group_size=0,
+    num_loader_workers=1,
+    num_eval_loader_workers=1,
     run_eval=True,
     test_delay_epochs=-1,
-    epochs=1000,
+    epochs=num_epochs,
     text_cleaner="english_cleaners",
-    use_phonemes=True,
-    phoneme_language="en-us",
-    phoneme_cache_path=os.path.join(output_path, "phoneme_cache"),
+    use_phonemes=False,
     compute_input_seq_cache=True,
     print_step=25,
     print_eval=True,
@@ -66,13 +93,22 @@ train_samples, eval_samples = load_tts_samples(
 # init model
 model = Vits(config, ap, tokenizer, speaker_manager=None)
 
+print(dataset_config)
+print(f"Train samples:{len(train_samples)}")
+print(f"Eval samples:{len(eval_samples)}")
+
+# ------------------------------------------------------------------------------------------------------ #
+# ------------------------------------------------------------------------------------------------------ #
+
+
 # init the trainer and 🚀
 trainer = Trainer(
     TrainerArgs(),
     config,
-    output_path,
+    "run/vits",
     model=model,
     train_samples=train_samples,
     eval_samples=eval_samples,
+    accumulate_grad_batches=grad_accum_steps,
 )
 trainer.fit()
