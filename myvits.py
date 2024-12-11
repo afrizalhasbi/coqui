@@ -109,6 +109,6 @@ trainer = Trainer(
     model=model,
     train_samples=train_samples,
     eval_samples=eval_samples,
-    accumulate_grad_batches=grad_accum_steps,
+    grad_accum_steps=grad_accum_steps,
 )
 trainer.fit()
