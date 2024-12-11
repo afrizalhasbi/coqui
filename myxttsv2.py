@@ -1,13 +1,13 @@
-import os
-
 from trainer import Trainer, TrainerArgs
 from TTS.config.shared_configs import BaseDatasetConfig
 from TTS.tts.datasets import load_tts_samples
 from TTS.tts.layers.xtts.trainer.gpt_trainer import GPTArgs, GPTTrainer, GPTTrainerConfig
 from TTS.tts.models.xtts import XttsAudioConfig
 from TTS.utils.manage import ModelManager
+
 import argparse
 import random
+import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--ds_name', required=True)
@@ -21,6 +21,7 @@ args = parser.parse_args()
 ds_name = args.ds_name 
 batch_size = args.batch_size
 grad_accum_steps = args.grad_accum_steps
+eval = args.eval
 num_epochs = args.num_epochs
 # Note: we recommend that batch_size * grad_accum_steps need to be at least 252 for more efficient training.
 # You can increase/decrease batch_size but then set grad_accum_steps accordingly.
@@ -143,7 +144,7 @@ def main():
         save_n_checkpoints=1,
         save_checkpoints=True,
         # target_loss="loss",
-        print_eval=True,
+        print_eval=eval,
         epochs=num_epochs,
         training_seed=111,
         # Optimizer values like tortoise, pytorch implementation with modifications to not apply WD to non-weight parameters.
@@ -163,12 +164,12 @@ def main():
     # load training samples
     train_samples, eval_samples = load_tts_samples(
         DATASETS_CONFIG_LIST,
-        eval_split=True,
+        eval_split=eval,
         eval_split_max_size=config.eval_split_max_size,
         eval_split_size=config.eval_split_size,
     )
     print(f"Train samples:{len(train_samples)}")
-    print(f"Eval samples:{len(eval_samples)}")
+    print(f"Eval samples:{len(eval_samples) if eval else 0}")
 
     # init the trainer and 🚀
     trainer = Trainer(
