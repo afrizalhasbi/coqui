@@ -30,6 +30,11 @@ if args.token is not None:
 if 'CUDA_VISIBLE_DEVICES' not in os.environ:
     os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
+
+# ------------------------------------------------------------------------------------------------------ #
+# ------------------------------------------------------------------------------------------------------ #
+
+
 # Define here the dataset that you want to use for the fine-tuning on.
 config_dataset = BaseDatasetConfig(
     formatter="huggingface",
@@ -38,6 +43,7 @@ config_dataset = BaseDatasetConfig(
     meta_file_train=ds_name,
     language="en",
 )
+
 # Logging parameters
 RUN_NAME = "GPT_XTTS_v2.0_LJSpeech_FT"
 PROJECT_NAME = "XTTS_trainer"
@@ -87,6 +93,9 @@ if not os.path.isfile(TOKENIZER_FILE) or not os.path.isfile(XTTS_CHECKPOINT):
     )
 
 LANGUAGE = config_dataset.language
+
+# ------------------------------------------------------------------------------------------------------ #
+# ------------------------------------------------------------------------------------------------------ #
 
 def main():
     # init args and config
