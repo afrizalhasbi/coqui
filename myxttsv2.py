@@ -12,14 +12,17 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--ds_name', required=True)
 parser.add_argument('--token', required=False, default=None)
-parser.add_argument('--batch', required=False, default=16)
-parser.add_argument('--grad_accum', required=False, default=16)
+parser.add_argument('--num_epochs', required=False, default=1)
+parser.add_argument('--batch_size', required=False, default=16)
+parser.add_argument('--grad_accum_steps', required=False, default=16)
 args = parser.parse_args()
 
 ds_name = args.ds_name 
-BATCH_SIZE = args.batch
-GRAD_ACUMM_STEPS = args.grad_accum
-# Note: we recommend that BATCH_SIZE * GRAD_ACUMM_STEPS need to be at least 252 for more efficient training. You can increase/decrease BATCH_SIZE but then set GRAD_ACUMM_STEPS accordingly.
+batch_size = args.batch_size
+grad_accum_steps = args.grad_accum
+num_epochs = args.num_epochs
+# Note: we recommend that batch_size * grad_accum_steps need to be at least 252 for more efficient training.
+# You can increase/decrease batch_size but then set grad_accum_steps accordingly.
 
 if args.token is not None:
     token = args.token
@@ -55,7 +58,6 @@ DATASETS_CONFIG_LIST = [config_dataset]
 CHECKPOINTS_OUT_PATH = os.path.join(OUT_PATH, "XTTS_v2.0_original_model_files/")
 os.makedirs(CHECKPOINTS_OUT_PATH, exist_ok=True)
 
-
 # DVAE files
 DVAE_CHECKPOINT_LINK = "https://huggingface.co/coqui/XTTS-v2/resolve/main/dvae.pth"
 MEL_NORM_LINK = "https://huggingface.co/coqui/XTTS-v2/resolve/main/mel_stats.pth"
@@ -68,7 +70,6 @@ MEL_NORM_FILE = os.path.join(CHECKPOINTS_OUT_PATH, os.path.basename(MEL_NORM_LIN
 if not os.path.isfile(DVAE_CHECKPOINT) or not os.path.isfile(MEL_NORM_FILE):
     print(" > Downloading DVAE files!")
     ModelManager._download_model_files([MEL_NORM_LINK, DVAE_CHECKPOINT_LINK], CHECKPOINTS_OUT_PATH, progress_bar=True)
-
 
 # Download XTTS v2.0 checkpoint if needed
 TOKENIZER_FILE_LINK = "https://huggingface.co/coqui/XTTS-v2/resolve/main/vocab.json"
@@ -85,13 +86,7 @@ if not os.path.isfile(TOKENIZER_FILE) or not os.path.isfile(XTTS_CHECKPOINT):
         [TOKENIZER_FILE_LINK, XTTS_CHECKPOINT_LINK], CHECKPOINTS_OUT_PATH, progress_bar=True
     )
 
-
-# Training sentences generations
-SPEAKER_REFERENCE = [
-    "./tests/data/ljspeech/wavs/LJ001-0002.wav"  # speaker reference to be used in training test sentences
-]
 LANGUAGE = config_dataset.language
-
 
 def main():
     # init args and config
@@ -125,9 +120,9 @@ def main():
         dashboard_logger=DASHBOARD_LOGGER,
         logger_uri=LOGGER_URI,
         audio=audio_config,
-        batch_size=BATCH_SIZE,
+        batch_size=batch_size,
         batch_group_size=0,
-        eval_batch_size=BATCH_SIZE,
+        eval_batch_size=batch_size,
         num_loader_workers=4,
         eval_split_max_size=256,
         print_step=50,
@@ -138,7 +133,7 @@ def main():
         save_checkpoints=True,
         # target_loss="loss",
         print_eval=True,
-        epochs=1,
+        epochs=num_epochs,
         training_seed=111,
         # Optimizer values like tortoise, pytorch implementation with modifications to not apply WD to non-weight parameters.
         optimizer="AdamW",
@@ -170,7 +165,7 @@ def main():
             restore_path=None,  # xtts checkpoint is restored via xtts_checkpoint key so no need of restore it using Trainer restore_path parameter
             skip_train_epoch=False,
             start_with_eval=START_WITH_EVAL,
-            grad_accum_steps=GRAD_ACUMM_STEPS,
+            grad_accum_steps=grad_accum_steps,
         ),
         config,
         output_path=OUT_PATH,
