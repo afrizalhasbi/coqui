@@ -36,10 +36,6 @@ def huggingface(root_path, meta_file, **kwargs):
         speaker_name = example['text_description']
         text = example['text']
         
-        # Normalize audio (ensure values are between -1 and 1)
-        if np.max(np.abs(audio_array)) > 0:  # Avoid division by zero
-            audio_array = audio_array / np.max(np.abs(audio_array))
-        
         # Save as mp3 file
         mp3_filename = f"audio_{idx}.mp3"
         mp3_path = os.path.join(root_path, mp3_filename)
