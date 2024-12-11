@@ -63,6 +63,17 @@ def get_module_weights_sum(mdl: nn.Module):
     return dict_sums
 
 
+# def load_audio(file_path):
+#     """Load the audio file normalized in [-1, 1]
+
+#     Return Shapes:
+#         - x: :math:`[1, T]`
+#     """
+#     x, sr = torchaudio.load(file_path)
+#     assert (x > 1).sum() + (x < -1).sum() == 0
+#     return x, sr
+
+
 def load_audio(file_path):
     """Load the audio file normalized in [-1, 1]
 
@@ -70,7 +81,10 @@ def load_audio(file_path):
         - x: :math:`[1, T]`
     """
     x, sr = torchaudio.load(file_path)
-    assert (x > 1).sum() + (x < -1).sum() == 0
+    # Normalize and clamp the values
+    if torch.max(torch.abs(x)) > 0:
+        x = x / torch.max(torch.abs(x))
+    x = torch.clamp(x, -1.0, 1.0)
     return x, sr
 
 
