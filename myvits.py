@@ -16,6 +16,7 @@ parser.add_argument('--ds_name', required=True)
 parser.add_argument('--token', required=False, default=None)
 parser.add_argument('--num_epochs', required=False, default=1)
 parser.add_argument('--batch_size', required=False, default=16)
+parser.add_argument('--lr', required=False, default="0.001")
 parser.add_argument('--grad_accum_steps', required=False, default=1)
 parser.add_argument('--logger', required=False, default=None)
 parser.add_argument('--eval', required=False, default=True)
@@ -24,6 +25,7 @@ args = parser.parse_args()
 
 ds_name = args.ds_name 
 batch_size = args.batch_size
+lr = float(args.lr)
 grad_accum_steps = args.grad_accum_steps
 num_epochs = args.num_epochs
 eval = args.eval
@@ -68,6 +70,7 @@ config = VitsConfig(
     num_loader_workers=1,
     num_eval_loader_workers=1 if eval else 0,
     run_eval=eval,
+    lr=lr,
     test_delay_epochs=-1,
     epochs=num_epochs,
     text_cleaner="basic_cleaners",
