@@ -124,4 +124,4 @@ trainer = Trainer(
     eval_samples=eval_samples,
 )
 trainer.fit()
-rename_dirs('run/vits', run_id)
+# rename_dirs('run/vits', run_id)
