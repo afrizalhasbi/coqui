@@ -10,7 +10,48 @@ from TTS.tts.datasets import load_tts_samples
 from TTS.tts.models.vits import CharactersConfig, Vits, VitsArgs, VitsAudioConfig
 from TTS.utils.downloaders import download_libri_tts
 
-torch.set_num_threads(24)
+from datetime import datetime
+import argparse
+import random
+import os
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--ds_name', required=True)
+parser.add_argument('--token', required=False, default=None)
+parser.add_argument('--num_epochs', required=False, default=1)
+parser.add_argument('--batch_size', required=False, default=16)
+parser.add_argument('--grad_accum_steps', required=False, default=16)
+parser.add_argument('--logger', required=False, default=None)
+parser.add_argument('--eval', required=False, default=True)
+args = parser.parse_args()
+
+ds_name = args.ds_name 
+batch_size = args.batch_size
+grad_accum_steps = args.grad_accum_steps
+eval = args.eval
+num_epochs = args.num_epochs
+
+torch.set_num_threads(16)
+
+if args.token is not None:
+    token = args.token
+    os.environ['HF_TOKEN'] = token
+if 'CUDA_VISIBLE_DEVICES' not in os.environ:
+    os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+
+run_id = random.randint(10_000, 99_999)
+
+def rename_dirs(root_dir, run_id):
+    month = datetime.now().strftime('%B')
+    for d in os.listdir(root_dir):
+        path = os.path.join(root_dir, d)
+        if os.path.isdir(path) and month in d:
+            new_name = d.split(f'-{month}')[0]
+            os.rename(path, os.path.join(root_dir, f"{new_name}_{run_id}"))
+    print("Removing the -Month name from the dir because its annoying as fuck okay, fuck off")
+
+# ------------------------------------------------------------------------------------------------------ #
+# ------------------------------------------------------------------------------------------------------ #
 
 # pylint: disable=W0105
 """
@@ -47,96 +88,23 @@ CML_DATASET_PATH = "./datasets/CML-TTS-Dataset/"
 
 
 ### Download LibriTTS dataset
-# it will automatic download the dataset, if you have problems you can comment it and manually donwload and extract it ! Download link: https://www.openslr.org/resources/60/train-clean-360.tar.gz
-LIBRITTS_DOWNLOAD_PATH = "./datasets/LibriTTS/"
-# Check if LibriTTS dataset is not already downloaded, if not download it
-if not os.path.exists(LIBRITTS_DOWNLOAD_PATH):
-    print(">>> Downloading LibriTTS dataset:")
-    download_libri_tts(LIBRITTS_DOWNLOAD_PATH, subset="libri-tts-clean-360")
-
 # init LibriTTS configs
-libritts_config = BaseDatasetConfig(
-    formatter="libri_tts",
-    dataset_name="libri_tts",
-    meta_file_train="",
-    meta_file_val="",
-    path=os.path.join(LIBRITTS_DOWNLOAD_PATH, "train-clean-360/"),
+config_dataset = BaseDatasetConfig(
+    formatter="huggingface",
+    dataset_name=ds_name,
+    path=ds_name.split('/')[1] + "_mp3",
+    meta_file_train=ds_name,
     language="en",
 )
 
-# init CML-TTS configs
-pt_config = BaseDatasetConfig(
-    formatter="cml_tts",
-    dataset_name="cml_tts",
-    meta_file_train="train.csv",
-    meta_file_val="",
-    path=os.path.join(CML_DATASET_PATH, "cml_tts_dataset_portuguese_v0.1/"),
-    language="pt-br",
-)
 
-pl_config = BaseDatasetConfig(
-    formatter="cml_tts",
-    dataset_name="cml_tts",
-    meta_file_train="train.csv",
-    meta_file_val="",
-    path=os.path.join(CML_DATASET_PATH, "cml_tts_dataset_polish_v0.1/"),
-    language="pl",
-)
-
-it_config = BaseDatasetConfig(
-    formatter="cml_tts",
-    dataset_name="cml_tts",
-    meta_file_train="train.csv",
-    meta_file_val="",
-    path=os.path.join(CML_DATASET_PATH, "cml_tts_dataset_italian_v0.1/"),
-    language="it",
-)
-
-fr_config = BaseDatasetConfig(
-    formatter="cml_tts",
-    dataset_name="cml_tts",
-    meta_file_train="train.csv",
-    meta_file_val="",
-    path=os.path.join(CML_DATASET_PATH, "cml_tts_dataset_french_v0.1/"),
-    language="fr",
-)
-
-du_config = BaseDatasetConfig(
-    formatter="cml_tts",
-    dataset_name="cml_tts",
-    meta_file_train="train.csv",
-    meta_file_val="",
-    path=os.path.join(CML_DATASET_PATH, "cml_tts_dataset_dutch_v0.1/"),
-    language="du",
-)
-
-ge_config = BaseDatasetConfig(
-    formatter="cml_tts",
-    dataset_name="cml_tts",
-    meta_file_train="train.csv",
-    meta_file_val="",
-    path=os.path.join(CML_DATASET_PATH, "cml_tts_dataset_german_v0.1/"),
-    language="ge",
-)
-
-sp_config = BaseDatasetConfig(
-    formatter="cml_tts",
-    dataset_name="cml_tts",
-    meta_file_train="train.csv",
-    meta_file_val="",
-    path=os.path.join(CML_DATASET_PATH, "cml_tts_dataset_spanish_v0.1/"),
-    language="sp",
-)
-
-# Add here all datasets configs Note: If you want to add new datasets, just add them here and it will automatically compute the speaker embeddings (d-vectors) for this new dataset :)
-DATASETS_CONFIG_LIST = [libritts_config, pt_config, pl_config, it_config, fr_config, du_config, ge_config, sp_config]
+DATASETS_CONFIG_LIST = [config_dataset]
 
 ### Extract speaker embeddings
 SPEAKER_ENCODER_CHECKPOINT_PATH = (
     "https://github.com/coqui-ai/TTS/releases/download/speaker_encoder_model/model_se.pth.tar"
 )
 SPEAKER_ENCODER_CONFIG_PATH = "https://github.com/coqui-ai/TTS/releases/download/speaker_encoder_model/config_se.json"
-
 D_VECTOR_FILES = []  # List of speaker embeddings/d-vectors to be used during the training
 
 # Iterates all the dataset configs checking if the speakers embeddings are already computated, if not compute it
@@ -160,7 +128,6 @@ for dataset_conf in DATASETS_CONFIG_LIST:
             no_eval=False,
         )
     D_VECTOR_FILES.append(embeddings_file)
-
 
 # Audio config used in training.
 audio_config = VitsAudioConfig(
@@ -207,16 +174,16 @@ config = VitsConfig(
     dashboard_logger="tensorboard",
     logger_uri=None,
     audio=audio_config,
-    batch_size=BATCH_SIZE,
-    batch_group_size=48,
-    eval_batch_size=BATCH_SIZE,
-    num_loader_workers=8,
+    batch_size=batch_size,
+    batch_group_size=0,
+    eval_batch_size=batch_size,
+    num_loader_workers=1,
     eval_split_max_size=256,
     print_step=50,
     plot_step=100,
     log_model_step=1000,
-    save_step=5000,
-    save_n_checkpoints=2,
+    save_step=999**2,
+    save_n_checkpoints=1,
     save_checkpoints=True,
     target_loss="loss_1",
     print_eval=False,
@@ -245,58 +212,6 @@ config = VitsConfig(
     cudnn_benchmark=False,
     max_audio_len=SAMPLE_RATE * MAX_AUDIO_LEN_IN_SECONDS,
     mixed_precision=False,
-    test_sentences=[
-        ["Voc\u00ea ter\u00e1 a vista do topo da montanha que voc\u00ea escalar.", "9351", None, "pt-br"],
-        ["Quando voc\u00ea n\u00e3o corre nenhum risco, voc\u00ea arrisca tudo.", "12249", None, "pt-br"],
-        [
-            "S\u00e3o necess\u00e1rios muitos anos de trabalho para ter sucesso da noite para o dia.",
-            "2961",
-            None,
-            "pt-br",
-        ],
-        ["You'll have the view of the top of the mountain that you climb.", "LTTS_6574", None, "en"],
-        ["When you don\u2019t take any risks, you risk everything.", "LTTS_6206", None, "en"],
-        ["Are necessary too many years of work to succeed overnight.", "LTTS_5717", None, "en"],
-        ["Je hebt uitzicht op de top van de berg die je beklimt.", "960", None, "du"],
-        ["Als je geen risico neemt, riskeer je alles.", "2450", None, "du"],
-        ["Zijn te veel jaren werk nodig om van de ene op de andere dag te slagen.", "10984", None, "du"],
-        ["Vous aurez la vue sur le sommet de la montagne que vous gravirez.", "6381", None, "fr"],
-        ["Quand tu ne prends aucun risque, tu risques tout.", "2825", None, "fr"],
-        [
-            "Sont n\u00e9cessaires trop d'ann\u00e9es de travail pour r\u00e9ussir du jour au lendemain.",
-            "1844",
-            None,
-            "fr",
-        ],
-        ["Sie haben die Aussicht auf die Spitze des Berges, den Sie erklimmen.", "2314", None, "ge"],
-        ["Wer nichts riskiert, riskiert alles.", "7483", None, "ge"],
-        ["Es sind zu viele Jahre Arbeit notwendig, um \u00fcber Nacht erfolgreich zu sein.", "12461", None, "ge"],
-        ["Avrai la vista della cima della montagna che sali.", "4998", None, "it"],
-        ["Quando non corri alcun rischio, rischi tutto.", "6744", None, "it"],
-        ["Are necessary too many years of work to succeed overnight.", "1157", None, "it"],
-        [
-            "B\u0119dziesz mie\u0107 widok na szczyt g\u00f3ry, na kt\u00f3r\u0105 si\u0119 wspinasz.",
-            "7014",
-            None,
-            "pl",
-        ],
-        ["Kiedy nie podejmujesz \u017cadnego ryzyka, ryzykujesz wszystko.", "3492", None, "pl"],
-        [
-            "Potrzebne s\u0105 zbyt wiele lat pracy, aby odnie\u015b\u0107 sukces z dnia na dzie\u0144.",
-            "1890",
-            None,
-            "pl",
-        ],
-        ["Tendr\u00e1s la vista de la cima de la monta\u00f1a que subes", "101", None, "sp"],
-        ["Cuando no te arriesgas, lo arriesgas todo.", "5922", None, "sp"],
-        [
-            "Son necesarios demasiados a\u00f1os de trabajo para triunfar de la noche a la ma\u00f1ana.",
-            "10246",
-            None,
-            "sp",
-        ],
-    ],
-    # Enable the weighted sampler
     use_weighted_sampler=True,
     # Ensures that all speakers are seen in the training batch equally no matter how many samples each speaker has
     # weighted_sampler_attrs={"language": 1.0, "speaker_name": 1.0},
