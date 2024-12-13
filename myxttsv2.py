@@ -18,12 +18,15 @@ parser.add_argument('--batch_size', required=False, default=16)
 parser.add_argument('--grad_accum_steps', required=False, default=16)
 parser.add_argument('--logger', required=False, default=None)
 parser.add_argument('--eval', required=False, default=True)
+parser.add_argument('--lr', required=False, default=1e-3)
+
 args = parser.parse_args()
 
 ds_name = args.ds_name 
 batch_size = args.batch_size
 grad_accum_steps = args.grad_accum_steps
 eval = args.eval
+lr = float(args.lr)
 num_epochs = args.num_epochs
 # Note: we recommend that batch_size * grad_accum_steps need to be at least 252 for more efficient training.
 # You can increase/decrease batch_size but then set grad_accum_steps accordingly.
@@ -163,7 +166,7 @@ def main():
         optimizer="AdamW",
         optimizer_wd_only_on_weights=OPTIMIZER_WD_ONLY_ON_WEIGHTS,
         optimizer_params={"betas": [0.9, 0.96], "eps": 1e-8, "weight_decay": 1e-2},
-        lr=5e-06,  # learning rate
+        lr=lr,
         lr_scheduler="MultiStepLR",
         # it was adjusted accordly for the new step scheme
         lr_scheduler_params={"milestones": [50000 * 18, 150000 * 18, 300000 * 18], "gamma": 0.5, "last_epoch": -1}
