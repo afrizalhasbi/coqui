@@ -5,6 +5,12 @@ pip install -e .
 pip install datasets boto3 pydub
 FLASH_ATTENTION_SKIP_CUDA_BUILD=TRUE pip install flash-attn --no-build-isolation
 ```
+```
+import torch
+from TTS.api import TTS
+tts = TTS(model_name="", progress_bar=False).to('cuda')
+tts.tts_to_file(text="Barangkali di sana ada jawabnya. Mengapa di tanahku terjadi bencana.", file_path='')
+```
 
 ## 🐸Coqui TTS News
 - 📣 Fork of the [original, unmaintained repository](https://github.com/coqui-ai/TTS). New PyPI package: [coqui-tts](https://pypi.org/project/coqui-tts)
