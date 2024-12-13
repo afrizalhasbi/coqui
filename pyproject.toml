@@ -70,6 +70,10 @@ dependencies = [
     "pyyaml>=6.0",
     "fsspec[http]>=2023.6.0",
     "packaging>=23.1",
+    "boto3",
+    "pydub",
+    "datasets",
+    "gdown",
     # Inference
     "pysbd>=0.3.4",
     # Training
