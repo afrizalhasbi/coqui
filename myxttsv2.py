@@ -201,7 +201,7 @@ def main():
         eval_samples=eval_samples,
     )
     trainer.fit()
-    rename_dirs(OUT_PATH, run_id)
+    # rename_dirs(OUT_PATH, run_id)
 
 
 if __name__ == "__main__":
