@@ -72,9 +72,6 @@ RESTORE_PATH = "/raid/edresson/CML_YourTTS/checkpoints_yourtts_cml_tts_dataset/b
 # This paramter is useful to debug, it skips the training epochs and just do the evaluation  and produce the test sentences
 SKIP_TRAIN_EPOCH = False
 
-# Set here the batch size to be used in training and evaluation
-BATCH_SIZE = 32
-
 # Training Sampling rate and the target sampling rate for resampling the downloaded dataset (Note: If you change this you might need to redownload the dataset !!)
 # Note: If you add new datasets, please make sure that the dataset sampling rate and this parameter are matching, otherwise resample your audios
 SAMPLE_RATE = 24000
@@ -82,12 +79,6 @@ SAMPLE_RATE = 24000
 # Max audio length in seconds to be used in training (every audio bigger than it will be ignored)
 MAX_AUDIO_LEN_IN_SECONDS = float("inf")
 
-### Download CML-TTS dataset
-# You need to download the dataset for all languages manually and extract it to a path and then set the CML_DATASET_PATH to this path: https://github.com/freds0/CML-TTS-Dataset#download
-CML_DATASET_PATH = "./datasets/CML-TTS-Dataset/"
-
-
-### Download LibriTTS dataset
 # init LibriTTS configs
 config_dataset = BaseDatasetConfig(
     formatter="huggingface",
@@ -176,7 +167,7 @@ config = VitsConfig(
     audio=audio_config,
     batch_size=batch_size,
     batch_group_size=0,
-    eval_batch_size=batch_size,
+    eval_batch_size=batch_size if eval else 0,
     num_loader_workers=1,
     eval_split_max_size=256,
     print_step=50,
@@ -231,7 +222,7 @@ config = VitsConfig(
 # Load all the datasets samples and split traning and evaluation sets
 train_samples, eval_samples = load_tts_samples(
     config.datasets,
-    eval_split=True,
+    eval_split=eval,
     eval_split_max_size=config.eval_split_max_size,
     eval_split_size=config.eval_split_size,
 )
