@@ -612,7 +612,7 @@ class VoiceBpeTokenizer:
         if vocab_file is not None:
             self.tokenizer = Tokenizer.from_file(vocab_file)
         self.char_limits = {
-            "en": float(inf),
+            "en": float("inf"),
             "de": 253,
             "fr": 273,
             "es": 239,
