@@ -64,26 +64,6 @@ def rename_dirs(root_dir, run_id):
     This recipe replicates the first experiment proposed in the CML-TTS paper (https://arxiv.org/abs/2306.10097). It uses the YourTTS model.
     YourTTS model is based on the VITS model however it uses external speaker embeddings extracted from a pre-trained speaker encoder and has small architecture changes.
 """
-CURRENT_PATH = os.path.dirname(os.path.abspath(__file__))
-
-# Name of the run for the Trainer
-RUN_NAME = "YourTTS-CML-TTS"
-
-# Path where you want to save the models outputs (configs, checkpoints and tensorboard logs)
-OUT_PATH = os.path.dirname(os.path.abspath(__file__))  # "/raid/coqui/Checkpoints/original-YourTTS/"
-
-# If you want to do transfer learning and speedup your training you can set here the path to the CML-TTS available checkpoint that cam be downloaded here:  https://drive.google.com/u/2/uc?id=1yDCSJ1pFZQTHhL09GMbOrdjcPULApa0p
-RESTORE_PATH = "/raid/edresson/CML_YourTTS/checkpoints_yourtts_cml_tts_dataset/best_model.pth"  # Download the checkpoint here:  https://drive.google.com/u/2/uc?id=1yDCSJ1pFZQTHhL09GMbOrdjcPULApa0p
-
-# This paramter is useful to debug, it skips the training epochs and just do the evaluation  and produce the test sentences
-SKIP_TRAIN_EPOCH = False
-
-# Training Sampling rate and the target sampling rate for resampling the downloaded dataset (Note: If you change this you might need to redownload the dataset !!)
-# Note: If you add new datasets, please make sure that the dataset sampling rate and this parameter are matching, otherwise resample your audios
-SAMPLE_RATE = 24000
-
-# Max audio length in seconds to be used in training (every audio bigger than it will be ignored)
-MAX_AUDIO_LEN_IN_SECONDS = float("inf")
 
 # init LibriTTS configs
 config_dataset = BaseDatasetConfig(
@@ -128,7 +108,7 @@ for dataset_conf in DATASETS_CONFIG_LIST:
 
 # Audio config used in training.
 audio_config = VitsAudioConfig(
-    sample_rate=SAMPLE_RATE,
+    sample_rate=44100,
     hop_length=256,
     win_length=1024,
     fft_size=1024,
@@ -164,10 +144,10 @@ model_args = VitsArgs(
 
 # General training config, here you can change the batch size and others useful parameters
 config = VitsConfig(
-    output_path=OUT_PATH,
+    output_path="run/yourtts",
     model_args=model_args,
-    run_name=RUN_NAME,
-    project_name="YourTTS",
+    run_name="yourtts",
+    project_name="yourtts",
     run_description="""
             - YourTTS trained using CML-TTS and LibriTTS datasets
         """,
@@ -210,7 +190,7 @@ config = VitsConfig(
     start_by_longest=True,
     datasets=DATASETS_CONFIG_LIST,
     cudnn_benchmark=False,
-    max_audio_len=SAMPLE_RATE * MAX_AUDIO_LEN_IN_SECONDS,
+    max_audio_len=float('inf'),
     mixed_precision=False,
     use_weighted_sampler=True,
     # Ensures that all speakers are seen in the training batch equally no matter how many samples each speaker has
@@ -241,9 +221,9 @@ model = Vits.init_from_config(config)
 
 # Init the trainer and 🚀
 trainer = Trainer(
-    TrainerArgs(restore_path=RESTORE_PATH, skip_train_epoch=SKIP_TRAIN_EPOCH),
+    TrainerArgs(restore_path="yourtts-ckpt/best_model.pth", skip_train_epoch=False),
     config,
-    output_path=OUT_PATH,
+    output_path="run/yourtts",
     model=model,
     train_samples=train_samples,
     eval_samples=eval_samples,
