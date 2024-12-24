@@ -1,6 +1,13 @@
 import os
+assert os.path.exists("yourtts-ckpt"), """yourtts checkpoint not detected. please run:
+git-lfs install
+git clone https://huggingface.co/afrizalha/yourtts-ckpt
+cd yourtts-ckpt
+rm -rf .git*
+"""
 
 import torch
+import json
 from trainer import Trainer, TrainerArgs
 
 from TTS.bin.compute_embeddings import compute_embeddings
@@ -13,7 +20,6 @@ from TTS.utils.downloaders import download_libri_tts
 from datetime import datetime
 import argparse
 import random
-import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--ds_name', required=True)
@@ -131,6 +137,9 @@ audio_config = VitsAudioConfig(
     num_mels=80,
 )
 
+with open("yourtts-ckpt/config.json", "r") as file:
+	model_conf = json.load(file)
+
 # Init VITSArgs setting the arguments that are needed for the YourTTS model
 model_args = VitsArgs(
     spec_segment_size=62,
@@ -147,7 +156,7 @@ model_args = VitsArgs(
     speaker_encoder_config_path=SPEAKER_ENCODER_CONFIG_PATH,
     resblock_type_decoder="2",  # In the paper, we accidentally trained the YourTTS using ResNet blocks type 2, if you like you can use the ResNet blocks type 1 like the VITS model
     # Useful parameters to enable the Speaker Consistency Loss (SCL) described in the paper
-    use_speaker_encoder_as_loss=False,
+    use_speaker_encoder_as_loss=True,
     # Useful parameters to enable multilingual training
     use_language_embedding=True,
     embedded_language_dim=4,
