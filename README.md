@@ -4,6 +4,8 @@ cd coqui
 pip install -e .
 pip install datasets boto3 pydub
 FLASH_ATTENTION_SKIP_CUDA_BUILD=TRUE pip install flash-attn --no-build-isolation
+mkdir models
+echo "export TTS_HOME=/tmp/coqui/models" >> ~/.bashrc && . ~/.bashrc
 ```
 ```
 import torch
