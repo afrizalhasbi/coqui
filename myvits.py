@@ -17,7 +17,7 @@ parser.add_argument('--token', required=False, default=None)
 parser.add_argument('--num_epochs', required=False, default=1)
 parser.add_argument('--batch_size', required=False, default=16)
 parser.add_argument('--lr', required=False, default="0.001")
-parser.add_argument('--grad_accum_steps', required=False, default=1)
+parser.add_argument('--grad_accum_steps', required=False, default=1)    #dont change or will throw error
 parser.add_argument('--logger', required=False, default=None)
 parser.add_argument('--eval', required=False, default=True)
 
@@ -73,7 +73,7 @@ config = VitsConfig(
     lr=lr,
     test_delay_epochs=-1,
     epochs=num_epochs,
-    text_cleaner="basic_cleaners",
+    text_cleaner=None,
     use_phonemes=False,
     compute_input_seq_cache=True,
     print_step=25,
@@ -119,7 +119,7 @@ print(f"Eval samples:{len(eval_samples) if eval else 0}")
 
 # init the trainer and 🚀
 trainer = Trainer(
-    TrainerArgs(grad_accum_steps=grad_accum_steps),
+    TrainerArgs(grad_accum_steps=grad_accum_steps, restore_path="/tmp/coqui/models/tts/tts_models--en--vctk--vits/model_file.pth"),
     config,
     "run/vits",
     model=model,
