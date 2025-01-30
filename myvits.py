@@ -6,6 +6,7 @@ from TTS.tts.models.vits import Vits, VitsAudioConfig
 from TTS.tts.utils.text.tokenizer import TTSTokenizer
 from TTS.utils.audio import AudioProcessor
 
+import uuid
 from datetime import datetime
 import argparse
 import random
@@ -16,7 +17,7 @@ parser.add_argument('--ds_name', required=True)
 parser.add_argument('--token', required=False, default=None)
 parser.add_argument('--num_epochs', required=False, default=1)
 parser.add_argument('--batch_size', required=False, default=16)
-parser.add_argument('--lr', required=False, default="0.001")
+parser.add_argument('--lr', required=False, default="0.0001")
 parser.add_argument('--grad_accum_steps', required=False, default=1)    #dont change or will throw error
 parser.add_argument('--logger', required=False, default=None)
 parser.add_argument('--eval', required=False, default=True)
@@ -30,15 +31,7 @@ grad_accum_steps = args.grad_accum_steps
 num_epochs = args.num_epochs
 eval = args.eval
 
-run_id = random.randint(10_000, 99_999)
-def rename_dirs(root_dir, run_id):
-    month = datetime.now().strftime('%B')
-    for d in os.listdir(root_dir):
-        path = os.path.join(root_dir, d)
-        if os.path.isdir(path) and month in d:
-            new_name = d.split(f'-{month}')[0]
-            os.rename(path, os.path.join(root_dir, f"{new_name}_{run_id}"))
-    print("Removing the -Month name from the dir because its annoying as fuck okay, fuck off")
+run_id = str(uuid.uuid4())[:5]
 
 # ------------------------------------------------------------------------------------------------------ #
 # ------------------------------------------------------------------------------------------------------ #
@@ -55,10 +48,10 @@ dataset_config = BaseDatasetConfig(
     dataset_name=ds_name,
     path=ds_name.split('/')[1] + "_mp3",
     meta_file_train=ds_name,
-    language="en",
+    language="id",
 )
 audio_config = VitsAudioConfig(
-    sample_rate=22050, win_length=1024, hop_length=256, num_mels=80, mel_fmin=0, mel_fmax=None
+    sample_rate=44100, win_length=1024, hop_length=256, num_mels=80, mel_fmin=0, mel_fmax=None
 )
 
 config = VitsConfig(

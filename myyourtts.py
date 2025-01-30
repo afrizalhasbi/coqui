@@ -16,6 +16,7 @@ from TTS.tts.configs.vits_config import VitsConfig
 from TTS.tts.datasets import load_tts_samples
 from TTS.tts.models.vits import CharactersConfig, Vits, VitsArgs, VitsAudioConfig
 from TTS.utils.downloaders import download_libri_tts
+from TTS.api import TTS
 
 from datetime import datetime
 import argparse
@@ -71,7 +72,7 @@ config_dataset = BaseDatasetConfig(
     dataset_name=ds_name,
     path=ds_name.split('/')[1] + "_mp3",
     meta_file_train=ds_name,
-    language="en",
+    language="id",
 )
 
 
@@ -169,10 +170,10 @@ config = VitsConfig(
     print_eval=False,
     use_phonemes=False,
     phonemizer="espeak",
-    phoneme_language="en",
+    phoneme_language="id",
     compute_input_seq_cache=True,
     add_blank=True,
-    text_cleaner="multilingual_cleaners",
+    text_cleaner=None,
     characters=CharactersConfig(
         characters_class="TTS.tts.models.vits.VitsCharacters",
         pad="_",
@@ -220,8 +221,9 @@ train_samples, eval_samples = load_tts_samples(
 model = Vits.init_from_config(config)
 
 # Init the trainer and 🚀
+ckpt_model_path = "/tmp/coqui/models/tts/tts_models--multilingual--multi-dataset--your_tts/model_file.pth"
 trainer = Trainer(
-    TrainerArgs(restore_path="yourtts-ckpt/best_model.pth", skip_train_epoch=False),
+    TrainerArgs(restore_path=ckpt_model_path, skip_train_epoch=False),
     config,
     output_path="run/yourtts",
     model=model,
